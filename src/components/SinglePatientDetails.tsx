@@ -11,6 +11,7 @@ const SinglePatientDetails = () => {
   const {id} = useParams<{ id: string }>();
   const [{ patient }, dispatch] = useStateValue();
 
+
   const genderIcon = (gender: string | undefined) => {
     const icon =
       gender === "male" ? (
@@ -36,6 +37,9 @@ const SinglePatientDetails = () => {
      // eslint-disable-next-line @typescript-eslint/no-floating-promises
      getSinglePatient();
   });
+  
+
+
 
   return (
     <>
@@ -45,6 +49,13 @@ const SinglePatientDetails = () => {
       </h2>
       <p>ssn : {patient?.ssn}</p>
       <p>occupation: {patient?.occupation}</p>
+      <h4>Entries</h4>
+      {patient?.entries.map((p, i) => (
+        <p key={i}>
+          {p.date} {p.description} <li>{p.diagnosisCodes?.join(",")}</li>
+        </p>
+      ))}
+      
     </>
   );
 };
