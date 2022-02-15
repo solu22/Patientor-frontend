@@ -13,8 +13,9 @@ import SinglePatientDetails from "./PatientDetailPage";
 
 const App = () => {
   const [, dispatch] = useStateValue();
+
   React.useEffect(() => {
-   // void axios.get<void>(`${apiBaseUrl}/ping`);
+   void axios.get<void>(`${apiBaseUrl}/ping`);
 
     const fetchPatientList = async () => {
       try {
@@ -26,8 +27,11 @@ const App = () => {
         console.error(e);
       }
     };
-    void fetchPatientList();
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    fetchPatientList();
   }, [dispatch]);
+  
+  
 
   return (
     <div className="App">

@@ -4,7 +4,7 @@ import { Container, Table, Button } from "semantic-ui-react";
 
 import { PatientFormValues } from "../AddPatientModal/AddPatientForm";
 import AddPatientModal from "../AddPatientModal";
-import { Patient } from "../types";
+import { Patient} from "../types";
 import { apiBaseUrl } from "../constants";
 import HealthRatingBar from "../components/HealthRatingBar";
 import { useStateValue } from "../state";
@@ -37,6 +37,8 @@ const PatientListPage = () => {
     }
   };
 
+  
+
   return (
     <div className="App">
       <Container textAlign="center">
@@ -55,7 +57,7 @@ const PatientListPage = () => {
           {Object.values(patients).map((patient: Patient) => (
             <Table.Row key={patient.id}>
               <Table.Cell>
-                <Link to = {`/patients/${patient.id}`}>{patient.name}</Link>
+                <Link to={`/patients/${patient.id}`}>{patient.name}</Link>
               </Table.Cell>
               <Table.Cell>{patient.gender}</Table.Cell>
               <Table.Cell>{patient.occupation}</Table.Cell>
@@ -73,6 +75,7 @@ const PatientListPage = () => {
         onClose={closeModal}
       />
       <Button onClick={() => openModal()}>Add New Patient</Button>
+
     </div>
   );
 };

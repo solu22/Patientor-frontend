@@ -1,17 +1,54 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 import axios from "axios";
 import React from "react";
 import { useParams } from "react-router-dom";
-import { Card, Icon } from "semantic-ui-react";
+import { Button, Card, Divider, Icon } from "semantic-ui-react";
+import AddEntryModal from "../AddEntryModal";
+import { EntryFormValues } from "../AddEntryModal/AddEntryForm";
 import { apiBaseUrl } from "../constants";
 import { setPatient, useStateValue } from "../state";
 import { Patient } from "../types";
 import { Entry } from "../types";
 import DiagnosisDetails from "./Diagnosis";
 
+
+
 const SinglePatientDetails = () => {
   const { id } = useParams<{ id: string }>();
   const [{ patient }, dispatch] = useStateValue();
+
+  const [modalOpen, setModalOpen] = React.useState<boolean>(false);
+  const [error, setError] = React.useState<string | undefined>();
+  const [entries, setEntries] = React.useState<Entry[]>([]);
+  
+  const openModal = (): void => setModalOpen(true);
+
+  const closeModal = (): void => {
+    setModalOpen(false);
+    setError(undefined);
+  };
+
+  
+
+  const submitNewEntry = async (values: EntryFormValues) => {
+    try {
+     
+      const response = await axios.post(
+        `${apiBaseUrl}/patients/${id}/entries`,
+        values
+      );
+      if(response!= undefined){
+         setEntries(entries.concat(response.data));
+         //console.log('---entries', entries);
+         closeModal();
+      }
+     } catch (error) {
+      console.log(error);
+      setError(error.data.console.error);
+    }
+  };
 
   const genderIcon = (gender: string | undefined) => {
     const icon =
@@ -47,6 +84,14 @@ const SinglePatientDetails = () => {
       </h2>
       <p>ssn : {patient?.ssn}</p>
       <p>occupation: {patient?.occupation}</p>
+      <AddEntryModal
+        modalOpen={modalOpen}
+        onSubmit={submitNewEntry}
+        error={error}
+        onClose={closeModal}
+      />
+      <Button onClick={() => openModal()}>Add New Entry</Button>
+      <Divider hidden />
       <h4>Entries</h4>
       <Entries entries={patient?.entries} />
     </>
@@ -76,10 +121,11 @@ const getColor = (rating: number) => {
   }
 };
 
-const assertNever = (value: never): never=>{
-  throw new Error(`unhandled discriminated union member: ${JSON.stringify(value)}`);
+const assertNever = (value: never): never => {
+  throw new Error(
+    `unhandled discriminated union member: ${JSON.stringify(value)}`
+  );
 };
-
 
 const EntryDetail: React.FC<{ entry: Entry | null }> = ({ entry }) => {
   if (!entry) {
@@ -126,28 +172,28 @@ const EntryDetail: React.FC<{ entry: Entry | null }> = ({ entry }) => {
       );
 
     case "OccupationalHealthcare":
-      return(
-      <Card>
-        <Card.Content>
-          <Card.Header>
-            {entry.date}
-            <Icon name="stethoscope" size="large" />
-            {entry.employerName}
-          </Card.Header>
-        </Card.Content>
-        <Card.Content description={entry.description} />
-        <Card.Content>
-          <DiagnosisDetails diagnosis={entry.diagnosisCodes} />
-        </Card.Content>
-        {entry.sickLeave && (
+      return (
+        <Card>
           <Card.Content>
-            <h6>Sick Leave</h6>
-            startDate: {entry.sickLeave.startDate}
-            <br></br>
-            endDate: {entry.sickLeave.endDate}
+            <Card.Header>
+              {entry.date}
+              <Icon name="stethoscope" size="large" />
+              {entry.employerName}
+            </Card.Header>
           </Card.Content>
-        )}
-      </Card>
+          <Card.Content description={entry.description} />
+          <Card.Content>
+            <DiagnosisDetails diagnosis={entry.diagnosisCodes} />
+          </Card.Content>
+          {entry.sickLeave && (
+            <Card.Content>
+              <h6>Sick Leave</h6>
+              startDate: {entry.sickLeave.startDate}
+              <br></br>
+              endDate: {entry.sickLeave.endDate}
+            </Card.Content>
+          )}
+        </Card>
       );
 
     default:
